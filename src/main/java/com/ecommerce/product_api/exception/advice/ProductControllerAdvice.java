@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
-@RestControllerAdvice(basePackages = "com.senai.java.back.end.controller")
+@RestControllerAdvice(basePackages = "com.ecommerce.product-api.controller")
 public class ProductControllerAdvice {
     @ExceptionHandler(ProductNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
