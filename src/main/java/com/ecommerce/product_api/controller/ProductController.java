@@ -32,9 +32,13 @@ public class ProductController {
         return productService.findByProductIdentifier(productIdentifier);
     }
 
+//    @PostMapping
+//    public ProductDTO newProduct(@Valid @RequestBody ProductDTO userDTO) {
+//        return productService.save(userDTO);
+//    }
     @PostMapping
-    public ProductDTO newProduct(@Valid @RequestBody ProductDTO userDTO) {
-        return productService.save(userDTO);
+    public ProductDTO newProduct(@Valid @RequestBody ProductDTO productDTO) {
+        return productService.save(productDTO);
     }
 
     @DeleteMapping("/{id}")

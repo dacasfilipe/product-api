@@ -1,10 +1,13 @@
 package com.ecommerce.product_api.service;
 
+import com.ecommerce.product_api.converter.DTOConverter;
 import com.ecommerce.product_api.dto.ProductDTO;
 import com.ecommerce.product_api.model.Category;
 import com.ecommerce.product_api.model.Product;
 import com.ecommerce.product_api.repository.CategoryRepository;
 import com.ecommerce.product_api.repository.ProductRepository;
+import com.ecommerce.shopping_client.exception.CategoryNotFoundException;
+import com.ecommerce.shopping_client.exception.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -37,30 +40,51 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    public ProductDTO findByProductIdentifier( String productIdentifier) {
+//    public ProductDTO findByProductIdentifier( String productIdentifier) {
+//        Product product = productRepository.findByProductIdentifier(productIdentifier);
+//        if (product != null) {
+//            return ProductDTO.convert(product);
+//        }
+//        return null;
+//    }
+    public ProductDTO findByProductIdentifier(String productIdentifier) {
         Product product = productRepository.findByProductIdentifier(productIdentifier);
-        if (product != null) {
-            return ProductDTO.convert(product);
+        if (product == null) {
+            throw new ProductNotFoundException();
         }
-        return null;
+        return DTOConverter.convert(product);
     }
 
+//    public ProductDTO save(ProductDTO productDTO) {
+//        Category category = categoryRepository
+//                .findById(productDTO.getCategoryDTO().getId())
+//                .orElseThrow(() -> new RuntimeException("Category not found"));
+//
+//        Product product =
+//                productRepository.save(Product.convert(productDTO));
+//        return ProductDTO.convert(product);
+//    }
     public ProductDTO save(ProductDTO productDTO) {
-        Category category = categoryRepository
-                .findById(productDTO.getCategoryDTO().getId())
-                .orElseThrow(() -> new RuntimeException("Category not found"));
-
-        Product product =
-                productRepository.save(Product.convert(productDTO));
-        return ProductDTO.convert(product);
+        Long categoryId = productDTO.getCategoryDTO().getId();
+        if (!categoryRepository.existsById(categoryId)) {
+            throw new CategoryNotFoundException();
+        }
+        Product saved = productRepository.save(Product.convert(productDTO));
+        return DTOConverter.convert(saved);
     }
 
-    public void delete(long productId) {
-        Optional<Product> product =
-                productRepository.findById(productId);
-        if (product.isPresent()) {
-            productRepository.delete(product.get());
-        }
+//    public void delete(long productId) {
+//        Optional<Product> product =
+//                productRepository.findById(productId);
+//        if (product.isPresent()) {
+//            productRepository.delete(product.get());
+//        }
+//    }
+    public ProductDTO delete(long productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(ProductNotFoundException::new);
+        productRepository.delete(product);
+        return DTOConverter.convert(product);
     }
 
     public ProductDTO editProduct(long id, ProductDTO dto) {
